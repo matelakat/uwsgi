@@ -24,9 +24,10 @@ GCC_LIST = ['python_plugin', 'pyutils', 'pyloader', 'wsgi_handlers', 'wsgi_heade
 python_config_script = os.environ.get('UWSGICONFIG_PYTHONCONFIG')
 if python_config_script:
     CFLAGS = splitted_output_of(python_config_script + " --includes")
+    LDFLAGS = splitted_output_of(python_config_script + " --ldflags")
 else:
     CFLAGS = ['-I' + sysconfig.get_python_inc(), '-I' + sysconfig.get_python_inc(plat_specific=True) ] 
-LDFLAGS = []
+    LDFLAGS = []
 
 if not 'UWSGI_PYTHON_NOLIB' in os.environ:
     LIBS = sysconfig.get_config_var('LIBS').split() + sysconfig.get_config_var('SYSLIBS').split()
