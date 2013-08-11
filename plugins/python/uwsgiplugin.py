@@ -1,5 +1,5 @@
 import os,sys
-
+import subprocess
 from distutils import sysconfig
 
 def get_python_version():
@@ -10,10 +10,22 @@ def get_python_version():
         pass
     return version
 
+
+def splitted_output_of(cmdline):
+    process = subprocess.Popen(cmdline.split(), stdout=subprocess.PIPE)
+    if process.wait():
+        raise Exception("Command %s returned non-zero" % cmdline)
+    return process.stdout.read().strip().split()
+
+
 NAME='python'
 GCC_LIST = ['python_plugin', 'pyutils', 'pyloader', 'wsgi_handlers', 'wsgi_headers', 'wsgi_subhandler', 'web3_subhandler', 'pump_subhandler', 'gil', 'uwsgi_pymodule', 'profiler', 'symimporter', 'tracebacker']
 
-CFLAGS = ['-I' + sysconfig.get_python_inc(), '-I' + sysconfig.get_python_inc(plat_specific=True) ] 
+python_config_script = os.environ.get('UWSGICONFIG_PYTHONCONFIG')
+if python_config_script:
+    CFLAGS = splitted_output_of(python_config_script + " --includes")
+else:
+    CFLAGS = ['-I' + sysconfig.get_python_inc(), '-I' + sysconfig.get_python_inc(plat_specific=True) ] 
 LDFLAGS = []
 
 if not 'UWSGI_PYTHON_NOLIB' in os.environ:
